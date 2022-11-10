@@ -1,39 +1,94 @@
-// Copyright (c) Microsoft Corporation. All rights reserved.
-// Licensed under the MIT License. See LICENSE in the project root for license information.
-
+using Microsoft.UI.Composition;
+using Microsoft.UI.Composition.SystemBackdrops;
 using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Controls.Primitives;
-using Microsoft.UI.Xaml.Data;
-using Microsoft.UI.Xaml.Input;
-using Microsoft.UI.Xaml.Media;
-using Microsoft.UI.Xaml.Navigation;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
+using WinRT;
 
-// To learn more about WinUI, the WinUI project structure,
-// and more about our project templates, see: http://aka.ms/winui-project-info.
+namespace MeizuLivePhotoViewer;
 
-namespace MeizuLivePhotoViewer
+public sealed partial class MainWindow
 {
-    /// <summary>
-    /// An empty window that can be used on its own or navigated to within a Frame.
-    /// </summary>
-    public sealed partial class MainWindow : Window
+    private WindowsSystemDispatcherQueueHelper _dispatcherQueueHelper;
+    private DesktopAcrylicController _acrylicController;
+    private SystemBackdropConfiguration _configurationSource;
+
+    public MainWindow()
     {
-        public MainWindow()
+        InitializeComponent();
+        TrySetAcrylicBackdrop();
+        AppTitleTextBlock.Text = "魅族动态照片查看器";
+    }
+
+    private void ExtendAcrylicIntoTitleBar()
+    {
+        ExtendsContentIntoTitleBar = true;
+        SetTitleBar(AppTitleBar);
+    }
+
+    private bool TrySetAcrylicBackdrop()
+    {
+        if (!DesktopAcrylicController.IsSupported())
+            return false; // Acrylic is not supported on this system
+
+        _dispatcherQueueHelper = new WindowsSystemDispatcherQueueHelper();
+        _dispatcherQueueHelper.EnsureWindowsSystemDispatcherQueueController();
+
+        // Hooking up the policy object
+        _configurationSource = new SystemBackdropConfiguration();
+        Activated += Window_Activated;
+        Closed += Window_Closed;
+        ((FrameworkElement) Content).ActualThemeChanged += Window_ThemeChanged;
+
+        // Initial configuration state.
+        _configurationSource.IsInputActive = true;
+        SetConfigurationSourceTheme();
+
+        _acrylicController = new DesktopAcrylicController();
+
+        // Enable the system backdrop.
+        // Note: Be sure to have "using WinRT;" to support the Window.As<...>() call.
+        _acrylicController.AddSystemBackdropTarget(this
+            .As<ICompositionSupportsSystemBackdrop>());
+        _acrylicController.SetSystemBackdropConfiguration(_configurationSource);
+        return true; // succeeded
+    }
+
+    private void Window_Activated(object sender, WindowActivatedEventArgs args)
+    {
+        _configurationSource.IsInputActive = args.WindowActivationState != WindowActivationState.Deactivated;
+
+        ExtendAcrylicIntoTitleBar();
+    }
+
+    private void Window_Closed(object sender, WindowEventArgs args)
+    {
+        // Make sure any Mica/Acrylic controller is disposed so it doesn't try to
+        // use this closed window.
+        if (_acrylicController != null)
         {
-            this.InitializeComponent();
+            _acrylicController.Dispose();
+            _acrylicController = null;
         }
 
-        private void myButton_Click(object sender, RoutedEventArgs e)
+        Activated -= Window_Activated;
+        _configurationSource = null;
+    }
+
+    private void Window_ThemeChanged(FrameworkElement sender, object args)
+    {
+        if (_configurationSource != null)
         {
-            myButton.Content = "Clicked";
+            SetConfigurationSourceTheme();
         }
+    }
+
+    private void SetConfigurationSourceTheme()
+    {
+        _configurationSource.Theme = ((FrameworkElement) Content).ActualTheme switch
+        {
+            ElementTheme.Dark => SystemBackdropTheme.Dark,
+            ElementTheme.Light => SystemBackdropTheme.Light,
+            ElementTheme.Default => SystemBackdropTheme.Default,
+            _ => _configurationSource.Theme
+        };
     }
 }

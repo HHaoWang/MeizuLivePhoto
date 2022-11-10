@@ -12,8 +12,8 @@
     Version="1.0.0.0" />
 
   <Properties>
-    <DisplayName>MeizuLivePhotoViewer (Package)</DisplayName>
-    <PublisherDisplayName>12203</PublisherDisplayName>
+    <DisplayName>动态照片查看器</DisplayName>
+    <PublisherDisplayName>HHaoWang</PublisherDisplayName>
     <Logo>Images\StoreLogo.png</Logo>
   </Properties>
 
@@ -31,14 +31,26 @@
       Executable="$targetnametoken$.exe"
       EntryPoint="$targetentrypoint$">
       <uap:VisualElements
-        DisplayName="MeizuLivePhotoViewer (Package)"
-        Description="MeizuLivePhotoViewer (Package)"
+        DisplayName="动态照片查看器"
+        Description="一个可以查看并提取魅族手机拍摄的动态照片的应用"
         BackgroundColor="transparent"
         Square150x150Logo="Images\Square150x150Logo.png"
         Square44x44Logo="Images\Square44x44Logo.png">
         <uap:DefaultTile Wide310x150Logo="Images\Wide310x150Logo.png" />
         <uap:SplashScreen Image="Images\SplashScreen.png" />
       </uap:VisualElements>
+      <Extensions>
+        <uap:Extension Category="windows.fileTypeAssociation">
+          <uap:FileTypeAssociation Name="jpg">
+            <uap:SupportedFileTypes>
+              <uap:FileType ContentType="image/jpeg">.jpg</uap:FileType>
+            </uap:SupportedFileTypes>
+            <uap:EditFlags OpenIsSafe="true"/>
+            <uap:DisplayName>动态图片查看器</uap:DisplayName>
+            <uap:InfoTip>可以在查看含有动态内容的照片时播放动态内容</uap:InfoTip>
+          </uap:FileTypeAssociation>
+        </uap:Extension>
+      </Extensions>
     </Application>
   </Applications>
 

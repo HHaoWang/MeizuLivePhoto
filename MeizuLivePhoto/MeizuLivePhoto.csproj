@@ -6,6 +6,15 @@
     <Nullable>enable</Nullable>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <Title>Meizu Live Photo</Title>
+    <Authors>HHaoWang</Authors>
+    <PackageProjectUrl>https://github.com/HHaoWang/MeizuLivePhoto</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/HHaoWang/MeizuLivePhoto.git</RepositoryUrl>
+    <PackageTags>meizu;live photo;</PackageTags>
+    <PackageLicenseExpression> GPL-3.0-only</PackageLicenseExpression>
+    <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
+    <Description>用于解析魅族手机拍摄的动态照片的包。
+A tool for reading live photos produced by Meizu mobile phone.</Description>
+    <Copyright>Copyright © HHaoWang 2022</Copyright>
   </PropertyGroup>
 
 </Project>
